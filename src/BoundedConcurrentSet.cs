@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Soenneker.Atomics.Longs;
+using Soenneker.Atomics.ValueInts;
 using Soenneker.Sets.Concurrent.Bounded.Abstract;
 
 namespace Soenneker.Sets.Concurrent.Bounded;
@@ -28,14 +29,14 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
 
     private readonly int _queueOverageTrimThreshold; // soft threshold to opportunistically prune stale nodes
 
-    private AtomicLong _approxCount;
+    private ValueAtomicInt _approxCount;
     private AtomicLong _nextGen;
-    private AtomicLong _approxQueued; // approximate queue depth (enq - deq)
+    private ValueAtomicInt _approxQueued; // approximate queue depth (enq - deq)
 
     // Not atomic: losing increments is fine; it's a heuristic trigger.
     private int _noProgressTrimStreak;
 
-    public long ApproxCount => _approxCount.Read();
+    public int ApproxCount => _approxCount.Read();
 
     public int MaxSize { get; }
 
@@ -101,9 +102,9 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
 
         _fifo = new ConcurrentQueue<Node>();
 
-        _approxCount = new AtomicLong(0);
+        _approxCount = new ValueAtomicInt(0);
         _nextGen = new AtomicLong(0);
-        _approxQueued = new AtomicLong(0);
+        _approxQueued = new ValueAtomicInt(0);
     }
 
     public bool TryAdd(T value)
@@ -162,17 +163,17 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
     /// </summary>
     private void TrimBestEffort()
     {
-        long count = _approxCount.Read();
+        int count = _approxCount.Read();
         if (count <= MaxSize)
             return;
 
-        long over = count - MaxSize;
+        int over = count - MaxSize;
 
-        long budget = Math.Max(over, _trimBatchSize);
+        int budget = Math.Max(over, _trimBatchSize);
         if (budget > _maxTrimWorkPerCall)
             budget = _maxTrimWorkPerCall;
 
-        long removed = 0;
+        var removed = 0;
 
         while (budget-- > 0)
         {
@@ -221,7 +222,7 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
     private void PruneQueueBestEffort()
     {
         // Budget is intentionally smaller than TrimBestEffort; this is a hygiene pass.
-        long budget = Math.Min(_trimBatchSize, 256);
+        int budget = Math.Min(_trimBatchSize, 256);
 
         while (budget-- > 0)
         {
@@ -243,24 +244,11 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
     /// Low-frequency correction path: sync approx count with dictionary count.
     /// This is intentionally rare because ConcurrentDictionary.Count is not free.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ResyncApproxCount()
     {
         int exact = _index.Count;
-        long current = _approxCount.Read();
-
-        // AtomicLong doesn't expose exchange here; adjust via delta.
-        long delta = exact - current;
-
-        if (delta > 0)
-        {
-            while (delta-- > 0)
-                _approxCount.Increment();
-        }
-        else if (delta < 0)
-        {
-            while (delta++ < 0)
-                _approxCount.Decrement();
-        }
+        _approxCount.Exchange(exact);
     }
 
     private readonly record struct Node(T Value, long Gen);

@@ -175,7 +175,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
     {
         var set = new BoundedConcurrentSet<int>(100);
 
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
             set.TryAdd(i);
 
         set.ApproxCount.Should().Be(10);

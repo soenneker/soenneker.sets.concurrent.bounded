@@ -25,7 +25,7 @@ public interface IBoundedConcurrentSet<T> where T : notnull
     /// It is intended for monitoring and heuristics rather than strict correctness.
     /// </remarks>
     [Pure]
-    long ApproxCount { get; }
+    int ApproxCount { get; }
 
     /// <summary>
     /// Gets the configured maximum size the set attempts to stay under.

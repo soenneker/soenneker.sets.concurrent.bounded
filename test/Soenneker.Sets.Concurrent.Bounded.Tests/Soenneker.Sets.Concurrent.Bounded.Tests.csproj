@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Sets.Concurrent.Bounded.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Sets.Concurrent.Bounded\Soenneker.Sets.Concurrent.Bounded.csproj" />
     </ItemGroup>
 
     <ItemGroup>

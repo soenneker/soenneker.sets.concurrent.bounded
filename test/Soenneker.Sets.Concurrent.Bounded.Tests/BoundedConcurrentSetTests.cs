@@ -2,13 +2,12 @@ using System;
 using System.Linq;
 using AwesomeAssertions;
 using Soenneker.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Sets.Concurrent.Bounded.Tests;
 
 public sealed class BoundedConcurrentSetTests : UnitTest
 {
-    [Fact]
+    [Test]
     public void Constructor_sets_MaxSize()
     {
         var set = new BoundedConcurrentSet<int>(42);
@@ -17,7 +16,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.ApproxCount.Should().Be(0);
     }
 
-    [Fact]
+    [Test]
     public void TryAdd_adds_value_and_returns_true()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -29,7 +28,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.Contains(1).Should().BeTrue();
     }
 
-    [Fact]
+    [Test]
     public void TryAdd_duplicate_returns_false()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -41,7 +40,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.ApproxCount.Should().Be(1);
     }
 
-    [Fact]
+    [Test]
     public void Contains_returns_true_when_value_exists()
     {
         var set = new BoundedConcurrentSet<string>(10);
@@ -50,7 +49,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.Contains("foo").Should().BeTrue();
     }
 
-    [Fact]
+    [Test]
     public void Contains_returns_false_when_value_missing()
     {
         var set = new BoundedConcurrentSet<string>(10);
@@ -58,7 +57,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.Contains("missing").Should().BeFalse();
     }
 
-    [Fact]
+    [Test]
     public void TryRemove_removes_value_and_returns_true()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -71,7 +70,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.Contains(1).Should().BeFalse();
     }
 
-    [Fact]
+    [Test]
     public void TryRemove_missing_value_returns_false()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -79,7 +78,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.TryRemove(1).Should().BeFalse();
     }
 
-    [Fact]
+    [Test]
     public void ToArray_returns_snapshot_of_values()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -93,7 +92,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         arr.Should().Contain(2);
     }
 
-    [Fact]
+    [Test]
     public void Values_contains_added_items()
     {
         var set = new BoundedConcurrentSet<int>(10);
@@ -107,7 +106,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         values.Should().Contain(2);
     }
 
-    [Fact]
+    [Test]
     public void Constructor_maxSize_zero_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(0);
@@ -116,7 +115,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("maxSize");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_maxSize_negative_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(-1);
@@ -125,7 +124,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("maxSize");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_trimBatchSize_zero_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(10, 0, trimBatchSize: 0);
@@ -134,7 +133,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("trimBatchSize");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_trimStartOveragePercent_negative_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(10, trimStartOveragePercent: -1);
@@ -143,7 +142,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("trimStartOveragePercent");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_maxTrimWorkPerCall_zero_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(10, maxTrimWorkPerCall: 0);
@@ -152,7 +151,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("maxTrimWorkPerCall");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_resyncAfterNoProgress_negative_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(10, resyncAfterNoProgress: -1);
@@ -161,7 +160,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("resyncAfterNoProgress");
     }
 
-    [Fact]
+    [Test]
     public void Constructor_queueOverageFactor_zero_throws()
     {
         Action act = () => _ = new BoundedConcurrentSet<int>(10, queueOverageFactor: 0);
@@ -170,7 +169,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
             .WithParameterName("queueOverageFactor");
     }
 
-    [Fact]
+    [Test]
     public void Add_multiple_items_approx_count_matches()
     {
         var set = new BoundedConcurrentSet<int>(100);
@@ -182,7 +181,7 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.ToArray().Should().HaveCount(10);
     }
 
-    [Fact]
+    [Test]
     public void Remove_then_add_same_value_succeeds()
     {
         var set = new BoundedConcurrentSet<int>(10);

@@ -37,7 +37,7 @@ jobs:
         run: dotnet build test/Soenneker.Sets.Concurrent.Bounded.Tests/Soenneker.Sets.Concurrent.Bounded.Tests.csproj --configuration Release --no-restore --verbosity minimal
 
       - name: Test
-        run: dotnet test test/Soenneker.Sets.Concurrent.Bounded.Tests/Soenneker.Sets.Concurrent.Bounded.Tests.csproj --configuration Release --no-build --no-restore --verbosity normal
+        run: dotnet test --project test/Soenneker.Sets.Concurrent.Bounded.Tests/Soenneker.Sets.Concurrent.Bounded.Tests.csproj --configuration Release --no-build --no-restore --verbosity normal
 
       - name: Restore library
         run: dotnet restore src/Soenneker.Sets.Concurrent.Bounded/Soenneker.Sets.Concurrent.Bounded.csproj --verbosity minimal

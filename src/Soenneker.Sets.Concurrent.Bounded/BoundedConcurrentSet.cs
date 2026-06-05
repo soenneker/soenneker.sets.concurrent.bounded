@@ -42,26 +42,6 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
 
     public IEnumerable<T> Values => _index.Keys;
 
-    /// <summary>
-    /// Creates a bounded concurrent set.
-    /// </summary>
-    /// <param name="maxSize">Target maximum size to stay under (best-effort).</param>
-    /// <param name="capacityHint">Optional initial capacity hint for the dictionary.</param>
-    /// <param name="trimBatchSize">How many candidates to attempt per trim cycle.</param>
-    /// <param name="trimStartOveragePercent">
-    /// How far above max size we allow before trimming starts (reduces thrash under contention).
-    /// Example: 5 means start trimming at maxSize * 1.05.
-    /// </param>
-    /// <param name="maxTrimWorkPerCall">Hard cap on per-call trim work (upper bound on dequeues).</param>
-    /// <param name="resyncAfterNoProgress">
-    /// Resync ApproxCount from dictionary count after this many consecutive trim calls remove nothing.
-    /// Set to 0 to disable resync.
-    /// </param>
-    /// <param name="queueOverageFactor">
-    /// Soft cap multiplier for queued nodes vs MaxSize. When approx queue depth exceeds MaxSize * factor,
-    /// trims will opportunistically prune additional stale nodes (bounded).
-    /// </param>
-    /// <param name="comparer">Optional key comparer.</param>
     public BoundedConcurrentSet(int maxSize, int capacityHint = 0, int trimBatchSize = 64, int trimStartOveragePercent = 5, int maxTrimWorkPerCall = 4096,
         int resyncAfterNoProgress = 8, int queueOverageFactor = 4, IEqualityComparer<T>? comparer = null)
     {

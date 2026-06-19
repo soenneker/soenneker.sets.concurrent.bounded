@@ -42,6 +42,6 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Atomics.Longs" Version="4.0.18" />
-        <PackageReference Include="Soenneker.Atomics.ValueInts" Version="4.0.20" />
+        <PackageReference Include="Soenneker.Atomics.ValueInts" Version="4.0.21" />
     </ItemGroup>
 </Project>

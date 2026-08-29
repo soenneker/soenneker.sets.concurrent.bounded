@@ -9,14 +9,7 @@ using Soenneker.Sets.Concurrent.Bounded.Abstract;
 
 namespace Soenneker.Sets.Concurrent.Bounded;
 
-/// <summary>
-/// A high-throughput, thread-safe set that attempts to stay under a maximum size.
-/// Not strict under contention: may temporarily exceed <see cref="MaxSize"/> but will
-/// opportunistically trim on writes to push back under the limit.
-/// 
-/// Eviction is best-effort FIFO-ish (insertion order), optimized for throughput rather than strict ordering.
-/// Uses generation tokens to avoid unbounded stale scanning in the FIFO queue.
-/// </summary>
+/// <inheritdoc cref="IBoundedConcurrentSet{T}"/>
 public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T : notnull
 {
     private readonly ConcurrentDictionary<T, Entry> _index;

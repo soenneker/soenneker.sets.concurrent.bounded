@@ -192,4 +192,22 @@ public sealed class BoundedConcurrentSetTests : UnitTest
         set.Contains(1).Should().BeTrue();
         set.ApproxCount.Should().Be(1);
     }
+
+    [Test]
+    public void Queue_pruning_preserves_oldest_live_eviction_candidates()
+    {
+        var set = new BoundedConcurrentSet<int>(
+            maxSize: 2,
+            trimStartOveragePercent: 100,
+            queueOverageFactor: 1);
+
+        for (var i = 1; i <= 5; i++)
+            set.TryAdd(i);
+
+        set.ApproxCount.Should().Be(2);
+        set.Contains(1).Should().BeFalse();
+        set.Contains(2).Should().BeFalse();
+        set.Contains(4).Should().BeTrue();
+        set.Contains(5).Should().BeTrue();
+    }
 }

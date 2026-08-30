@@ -207,9 +207,12 @@ public sealed class BoundedConcurrentSet<T> : IBoundedConcurrentSet<T> where T :
 
             _approxQueued.Decrement();
 
-            // If it's stale, great — we removed trash.
-            // If it might be live, we leave it alone (don’t remove from set here).
-            // We still paid only a bounded dequeue cost.
+            // Discard stale nodes, but preserve live candidates for later FIFO eviction.
+            if (_index.TryGetValue(node.Value, out Entry entry) && entry.Gen == node.Gen)
+            {
+                _fifo.Enqueue(node);
+                _approxQueued.Increment();
+            }
         }
     }
 

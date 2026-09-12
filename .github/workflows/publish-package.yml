@@ -13,6 +13,10 @@ on:
 env:
     "PipelineEnvironment": true
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish-package:
     runs-on: ubuntu-latest
@@ -55,6 +59,12 @@ jobs:
             --no-restore \
             --output ./artifacts
 
+      - name: Log in to NuGet
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: soenneker
+
       - name: Publish to NuGet with retry
         run: |
           nupkg_files=$(find ./artifacts -name "*.nupkg")
@@ -63,7 +73,7 @@ jobs:
           exponent=3.5
           
           for i in $(seq 1 $retries); do
-            if dotnet nuget push $nupkg_files --source 'https://api.nuget.org/v3/index.json' --api-key ${{secrets.NUGET__TOKEN}} --skip-duplicate; then
+            if dotnet nuget push $nupkg_files --source 'https://api.nuget.org/v3/index.json' --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --skip-duplicate; then
               break
             fi
             

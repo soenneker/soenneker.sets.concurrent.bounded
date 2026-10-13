@@ -23,6 +23,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Get release notes from latest commit
+        uses: soenneker/release-notes-from-commits@v2
+
       
       - name: Setting up build version
         run: |
@@ -65,27 +69,11 @@ jobs:
         with:
           user: soenneker
 
-      - name: Publish to NuGet with retry
-        run: |
-          nupkg_files=$(find ./artifacts -name "*.nupkg")
-          retries=5
-          base_wait_time=20 
-          exponent=3.5
-          
-          for i in $(seq 1 $retries); do
-            if dotnet nuget push $nupkg_files --source 'https://api.nuget.org/v3/index.json' --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --skip-duplicate; then
-              break
-            fi
-            
-            if [ $i -lt $retries ]; then
-              wait_time=$(awk "BEGIN {print int($base_wait_time * ($exponent ^ ($i - 1)))}")
-              echo "NuGet publish failed, retrying in $wait_time seconds..."
-              sleep $wait_time
-            else
-              echo "NuGet publish failed after $retries retries."
-              exit 1
-            fi
-          done
+      - name: Publish to NuGet
+        uses: soenneker/nuget-resilient-publish@v2
+        with:
+          api-key: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          packages: 'artifacts/*.nupkg'
 
       - name: Add GitHub NuGet Source
         run: |
@@ -103,7 +91,7 @@ jobs:
 
       - name: Create GitHub Release
         run: |
-          changelog=$(git log -20 --pretty=format:"- %s")
+          changelog="$PACKAGE_RELEASE_NOTES"
           tag_name="v$BUILD_VERSION"
 
           json_payload=$(
